@@ -250,6 +250,8 @@
 
   <script>
     const API_BASE = "https://script.google.com/macros/s/AKfycbwro1xYcI9tni5VI9rqkV0vZwKOiVGfbFhyZkSw3-Xj0ZxclXJdFY3RnmTsqdfehYaH/exec";
+    let allSlots = [];
+let myReservations = [];
     function showMessage(message, isError) {
       let box = document.getElementById("messageBox");
 
@@ -323,31 +325,31 @@
     }
 
     async function loadSlots() {
-      const container = document.getElementById("slots");
-      container.innerHTML = '<div class="empty">読み込み中です…</div>';
+  const container = document.getElementById("slots");
+  container.innerHTML = '<div class="empty">読み込み中です…</div>';
 
-      const studentId = document.getElementById("studentId").value.trim();
-      const name = document.getElementById("name").value.trim();
+  const studentId = document.getElementById("studentId").value.trim();
+  const name = document.getElementById("name").value.trim();
 
+  try {
+    allSlots = await apiGet("getSlots");
+
+    if (studentId && name) {
       try {
-        const slots = await apiGet("getSlots");
-
-        if (studentId && name) {
-          try {
-            const reservations = await apiGet("getMyReservations", { studentId, name });
-            showSlots(slots, reservations);
-          } catch (error) {
-            showSlots(slots, []);
-            showMessage("予約情報の取得に失敗しました: " + error.message, true);
-          }
-        } else {
-          showSlots(slots, []);
-        }
+        myReservations = await apiGet("getMyReservations", { studentId, name });
       } catch (error) {
-        showError(error.message || error);
+        myReservations = [];
+        showMessage("予約情報の取得に失敗しました: " + error.message, true);
       }
+    } else {
+      myReservations = [];
     }
 
+    showSlots(allSlots, myReservations);
+  } catch (error) {
+    showError(error.message || error);
+  }
+}
     function showSlots(data, reservations) {
       const container = document.getElementById("slots");
       container.innerHTML = "";
@@ -553,12 +555,11 @@
     }
 
     window.onload = function() {
-      loadSlots();
+  loadSlots();
 
-      document.getElementById("stage").addEventListener("change", function() {
-        loadSlots();
-      });
-    };
-  </script>
+  document.getElementById("stage").addEventListener("change", function() {
+    showSlots(allSlots, myReservations);
+  });
+};  </script>
 </body>
 </html>
