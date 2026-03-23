@@ -473,27 +473,26 @@ let myReservations = [];
     }
 
     async function loadMyReservations() {
-      const studentId = document.getElementById("studentId").value.trim();
-      const name = document.getElementById("name").value.trim();
+  const studentId = document.getElementById("studentId").value.trim();
+  const name = document.getElementById("name").value.trim();
 
-      if (!studentId || !name) {
-        showMessage("教習生番号と氏名を入力してください", true);
-        return;
-      }
+  if (!studentId || !name) {
+    showMessage("教習生番号と氏名を入力してください", true);
+    return;
+  }
 
-      if (!/^\d{5}$/.test(studentId)) {
-        showMessage("教習生番号は半角数字5桁で入力してください", true);
-        return;
-      }
+  if (!/^\d{5}$/.test(studentId)) {
+    showMessage("教習生番号は半角数字5桁で入力してください", true);
+    return;
+  }
 
-      try {
-        const data = await apiGet("getMyReservations", { studentId, name });
-        showMyReservations(data);
-      } catch (error) {
-        showMessage("予約確認できませんでした: " + error.message, true);
-      }
-    }
-
+  try {
+    myReservations = await apiGet("getMyReservations", { studentId, name });
+    showMyReservations(myReservations);
+  } catch (error) {
+    showMessage("予約確認できませんでした: " + error.message, true);
+  }
+}
     function showMyReservations(data) {
       const container = document.getElementById("myReservations");
       container.innerHTML = "";
