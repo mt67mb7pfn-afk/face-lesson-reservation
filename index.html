@@ -1,658 +1,406 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>青葉自動車学校 対面学科予約</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      -webkit-text-size-adjust: 100%;
-      overflow-x: hidden;
-    }
+<script>
+  const API_BASE = "https://script.google.com/macros/s/AKfycbwro1xYcI9tni5VI9rqkV0vZwKOiVGfbFhyZkSw3-Xj0ZxclXJdFY3RnmTsqdfehYaH/exec";
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
+  let allSlots = [];
+  let myReservations = [];
+  let reservationFetchTimer = null;
 
-    body {
-      font-family: sans-serif;
-      background: #f7f7f7;
-      color: #222;
-    }
+  function showMessage(message, isError) {
+    let box = document.getElementById("messageBox");
 
-    .page {
-      width: 100%;
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 8px;
-    }
-
-    .school-title {
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-      margin: 0 0 8px 0;
-      line-height: 1.3;
-    }
-
-    .lead-box {
-      background: #ffffff;
-      border-left: 4px solid #2d7ff9;
-      border-radius: 8px;
-      padding: 8px 10px;
-      margin-bottom: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-      line-height: 1.35;
-      font-size: 10px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 8px;
-      padding: 8px;
-      margin-bottom: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-
-    .sticky-card {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: #ffffff;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .input-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px;
-      margin-bottom: 4px;
-    }
-
-    .input-row input {
-      width: 100%;
-      height: 30px;
-      padding: 2px 8px;
-      margin: 0;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 16px;
-      background: #fff;
-    }
-
-    .stage-label {
-      font-size: 9px;
-      color: #2d7ff9;
-      margin-bottom: 2px;
-    }
-
-    .stage-select {
-      width: 100%;
-      height: 30px;
-      border: 1.5px solid #2d7ff9;
-      border-radius: 6px;
-      font-size: 16px;
-      background: #f5f9ff;
-      padding: 0 8px;
-    }
-
-    .stage-select:disabled {
-      background: #f0f0f0;
-      color: #999;
-      border-color: #ccc;
-    }
-
-    input::placeholder {
-      font-size: 10px;
-      color: #999;
-    }
-
-    .note {
-      font-size: 9px;
-      color: #666;
-      line-height: 1.25;
-    }
-
-    .action-row {
-      margin-bottom: 8px;
-    }
-
-    h3 {
-      margin: 0 0 8px 0;
-      font-size: 13px;
-    }
-
-    .slot {
-      border: 1px solid #e3e3e3;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 8px;
-      background: #ffffff;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .slot-title {
-      font-size: 14px;
-      font-weight: bold;
-      line-height: 1.35;
-      margin-bottom: 4px;
-    }
-
-    button {
-      display: block;
-      width: 100%;
-      padding: 10px 12px;
-      background: #2d7ff9;
-      color: white;
-      border: none;
-      border-radius: 7px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    button:disabled {
-      cursor: default;
-      opacity: 0.95;
-    }
-
-    .subtle-button {
-      background: #666;
-    }
-
-    .empty {
-      color: #666;
-      padding: 4px 0;
-      font-size: 10px;
-      line-height: 1.3;
-    }
-
-    .deadline {
-      font-size: 10px;
-      color: #666;
-    }
-
-    .closed {
-      color: #cc0000;
-      font-weight: bold;
-      font-size: 12px;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    @media (max-width: 380px) {
-      .school-title {
-        font-size: 18px;
-      }
-
-      .slot-title {
-        font-size: 13px;
-      }
-
-      button {
-        font-size: 12px;
-        padding: 9px 10px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="page">
-
-    <h1 class="school-title">青葉自動車学校 対面学科予約</h1>
-
-    <div class="lead-box">
-      学科教習はオンラインでの受講をおすすめしています。<br>
-      対面での受講を希望する方は、以下の実施予定をご確認の上ご予約ください。
-    </div>
-
-    <div class="card sticky-card">
-      <div class="input-row">
-        <input id="studentId" maxlength="5" inputmode="numeric" placeholder="教習生番号(5桁)">
-        <input id="name" placeholder="氏名">
-      </div>
-
-      <div style="margin-bottom:4px;">
-        <div class="stage-label">現在の段階を選択</div>
-        <select id="stage" class="stage-select" disabled>
-          <option value="">現在の段階を選択</option>
-          <option value="1">第1段階</option>
-          <option value="2">第2段階</option>
-        </select>
-      </div>
-
-      <div class="note">
-        ・教習生番号は半角数字5桁で入力してください。<br>
-        ・表示されている授業のみ予約できます。<br>
-        ・同じ授業の重複予約はできません。<br>
-        ・予約は受講日の3日前まで可能です。<br>
-        ・受講希望者がいない場合、対面学科は実施しない場合があります。
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>予約可能な授業（2週間先まで）</h3>
-      <div id="slots" class="empty">読み込み中です…</div>
-    </div>
-
-    <div class="card">
-      <div class="action-row">
-        <button type="button" class="subtle-button" onclick="toggleReservations()">自分の予約を確認・取消</button>
-      </div>
-      <div id="reservationPanel" class="hidden">
-        <div id="myReservations" class="empty">教習生番号と氏名を入力して確認してください。</div>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    const API_BASE = "https://script.google.com/macros/s/AKfycbwro1xYcI9tni5VI9rqkV0vZwKOiVGfbFhyZkSw3-Xj0ZxclXJdFY3RnmTsqdfehYaH/exec";
-
-    let allSlots = [];
-    let myReservations = [];
-    let reservationFetchTimer = null;
-
-    function showMessage(message, isError) {
-      let box = document.getElementById("messageBox");
-
-      if (!box) {
-        box = document.createElement("div");
-        box.id = "messageBox";
-        box.style.marginBottom = "8px";
-        box.style.padding = "8px 10px";
-        box.style.borderRadius = "6px";
-        box.style.fontSize = "11px";
-        box.style.lineHeight = "1.4";
-
-        const target = document.querySelector(".page");
-        target.insertBefore(box, target.children[1]);
-      }
-
-      box.style.background = isError ? "#fdecec" : "#eef8ee";
-      box.style.color = isError ? "#b30000" : "#1f6b1f";
-      box.style.border = isError ? "1px solid #f3b3b3" : "1px solid #b7dfb7";
-      box.style.padding = "8px 10px";
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "messageBox";
       box.style.marginBottom = "8px";
-      box.textContent = message;
+      box.style.padding = "8px 10px";
+      box.style.borderRadius = "6px";
+      box.style.fontSize = "11px";
+      box.style.lineHeight = "1.4";
 
-      setTimeout(function() {
-        if (box) {
-          box.textContent = "";
-          box.style.padding = "0";
-          box.style.border = "none";
-          box.style.marginBottom = "0";
-        }
-      }, 3000);
+      const target = document.querySelector(".page");
+      target.insertBefore(box, target.children[1]);
     }
 
-    async function apiGet(action, params = {}) {
-      const url = new URL(API_BASE);
-      url.searchParams.set("action", action);
+    box.style.background = isError ? "#fdecec" : "#eef8ee";
+    box.style.color = isError ? "#b30000" : "#1f6b1f";
+    box.style.border = isError ? "1px solid #f3b3b3" : "1px solid #b7dfb7";
+    box.style.padding = "8px 10px";
+    box.style.marginBottom = "8px";
+    box.textContent = message;
 
-      Object.entries(params).forEach(([key, value]) => {
-        url.searchParams.set(key, value);
-      });
-
-      const response = await fetch(url.toString(), {
-        method: "GET"
-      });
-
-      const result = await response.json();
-
-      if (!result.ok) {
-        throw new Error(result.error || "取得に失敗しました。");
+    setTimeout(function() {
+      if (box) {
+        box.textContent = "";
+        box.style.padding = "0";
+        box.style.border = "none";
+        box.style.marginBottom = "0";
       }
-
-      return result.data;
-    }
-
-    async function apiPost(payload) {
-      const response = await fetch(API_BASE, {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const result = await response.json();
-
-      if (!result.ok) {
-        throw new Error(result.error || "処理に失敗しました。");
-      }
-
-      return result.message;
-    }
-
-    function isUserReady() {
-      const studentId = document.getElementById("studentId").value.trim();
-      const name = document.getElementById("name").value.trim();
-      return /^\d{5}$/.test(studentId) && name !== "";
-    }
-
-    function updateStageAvailability() {
-      const stage = document.getElementById("stage");
-      const ready = isUserReady();
-
-      stage.disabled = !ready;
-
-      if (!ready) {
-        stage.value = "";
-        myReservations = [];
-        document.getElementById("slots").innerHTML = '<div class="empty">先に教習生番号と氏名を入力してください。</div>';
-      }
-    }
-
-    async function fetchReservationsIfReady() {
-      if (!isUserReady()) {
-        myReservations = [];
-        return;
-      }
-
-      const studentId = document.getElementById("studentId").value.trim();
-      const name = document.getElementById("name").value.trim();
-
-      myReservations = await apiGet("getMyReservations", { studentId, name });
-    }
-
-    async function loadSlots() {
-      const container = document.getElementById("slots");
-      container.innerHTML = '<div class="empty">読み込み中です…</div>';
-
-      try {
-        allSlots = await apiGet("getSlots");
-
-        if (isUserReady()) {
-          try {
-            await fetchReservationsIfReady();
-          } catch (error) {
-            myReservations = [];
-            showMessage("予約情報の取得に失敗しました: " + error.message, true);
-          }
-        } else {
-          myReservations = [];
-        }
-
-        showSlots(allSlots, myReservations);
-      } catch (error) {
-        showError(error.message || error);
-      }
-    }
-
-    function showSlots(data, reservations) {
-      const container = document.getElementById("slots");
-      container.innerHTML = "";
-
-      const selectedStage = document.getElementById("stage").value;
-
-      if (!isUserReady()) {
-        container.innerHTML = '<div class="empty">先に教習生番号と氏名を入力してください。</div>';
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        container.innerHTML = '<div class="empty">現在、予約可能な授業はありません。</div>';
-        return;
-      }
-
-      if (!selectedStage) {
-        container.innerHTML = '<div class="empty">現在の段階を選択してください。</div>';
-        return;
-      }
-
-      const filtered = data.filter(slot => Number(slot.stage) === Number(selectedStage));
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<div class="empty">現在、予約可能な授業はありません。</div>';
-        return;
-      }
-
-      const now = new Date();
-
-      filtered.forEach(function(slot) {
-        const div = document.createElement("div");
-        div.className = "slot";
-
-        const deadline = new Date(slot.deadline);
-        const isReserved = reservations.some(r => r.id === slot.id);
-        let buttonHtml = "";
-
-        if (isReserved) {
-          buttonHtml = '<button style="background:#4caf50;" disabled>予約完了</button>';
-        } else if (now > deadline) {
-          buttonHtml = '<span class="closed">受付終了</span>';
-        } else {
-          buttonHtml = '<button onclick="reserve(\'' + slot.id + '\', this)">予約する</button>';
-        }
-
-        div.innerHTML =
-          '<div class="slot-title">' + slot.date + '（' + slot.week + '） ' + slot.period + '限</div>' +
-          '<div>' + slot.subject + '</div>' +
-          '<div>' + slot.startTime + '～' + slot.endTime + '</div>' +
-          '<div class="deadline">締切: ' + slot.deadline + '</div>' +
-          '<div style="margin-top:8px;">' + buttonHtml + '</div>';
-
-        container.appendChild(div);
-      });
-    }
-
-    function showError(error) {
-      const container = document.getElementById("slots");
-      container.innerHTML = '<div class="empty">読込エラーが発生しました。</div>';
-      showMessage("読込エラー: " + error, true);
-    }
-
-    function scrollToReservationPanel() {
-      const panel = document.getElementById("reservationPanel");
-      panel.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    async function reserve(id, btn) {
-      const studentId = document.getElementById("studentId").value.trim();
-      const name = document.getElementById("name").value.trim();
-      const stage = document.getElementById("stage").value;
-
-      if (!studentId || !name || !stage) {
-        showMessage("教習生番号・氏名・現在の段階を入力してください", true);
-        return;
-      }
-
-      if (!/^\d{5}$/.test(studentId)) {
-        showMessage("教習生番号は半角数字5桁で入力してください", true);
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = "送信中…";
-
-      try {
-        const message = await apiPost({
-          action: "reserve",
-          id,
-          studentId,
-          name,
-          stage
-        });
-
-        btn.innerHTML = "予約完了";
-        btn.style.background = "#4caf50";
-
-        await fetchReservationsIfReady();
-
-        const panel = document.getElementById("reservationPanel");
-        if (!panel.classList.contains("hidden")) {
-          showMyReservations(myReservations);
-        }
-
-        showSlots(allSlots, myReservations);
-      } catch (error) {
-        btn.disabled = false;
-        btn.innerHTML = "予約する";
-        showMessage("予約できませんでした: " + error.message, true);
-      }
-    }
-
-    function toggleReservations() {
-      const panel = document.getElementById("reservationPanel");
-
-      if (panel.classList.contains("hidden")) {
-        panel.classList.remove("hidden");
-        loadMyReservations();
-      } else {
-        panel.classList.add("hidden");
-      }
-    }
-
-    function ensureReservationPanelOpen() {
-      const panel = document.getElementById("reservationPanel");
-      panel.classList.remove("hidden");
-    }
-
-    async function loadMyReservations() {
-      if (!isUserReady()) {
-        showMessage("教習生番号と氏名を入力してください", true);
-        return;
-      }
-
-      try {
-        await fetchReservationsIfReady();
-        showMyReservations(myReservations);
-      } catch (error) {
-        showMessage("予約確認できませんでした: " + error.message, true);
-      }
-    }
-
-    function showMyReservations(data) {
-      const container = document.getElementById("myReservations");
-      container.innerHTML = "";
-
-      if (!data || data.length === 0) {
-        container.innerHTML = '<div class="empty">現在、予約中の授業はありません。</div>';
-        return;
-      }
-
-      data.forEach(function(item) {
-        const div = document.createElement("div");
-        div.className = "slot";
-
-        div.innerHTML =
-  '<div class="slot-title" style="font-size:13px;">' + item.date + ' ' + item.period + '</div>' +
-  '<div>' + item.subject + '</div>' +
-  '<div style="margin-top:8px;">' +
-  '<button class="subtle-button" onclick="cancelReservation(\'' + item.id + '\', this)">この予約を取り消す</button>' +
-  '</div>';
-        container.appendChild(div);
-      });
-    }
-
-    async function cancelReservation(id, btn) {
-  const studentId = document.getElementById("studentId").value.trim();
-  const name = document.getElementById("name").value.trim();
-
-  if (!studentId || !name) {
-    showMessage("教習生番号と氏名を入力してください", true);
-    return;
+    }, 3000);
   }
 
-  if (!/^\d{5}$/.test(studentId)) {
-    showMessage("教習生番号は半角数字5桁で入力してください", true);
-    return;
-  }
+  async function apiGet(action, params = {}) {
+    const url = new URL(API_BASE);
+    url.searchParams.set("action", action);
 
-  if (!confirm("この予約を取り消しますか？")) {
-    return;
-  }
-
-  const originalText = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = "取消中…";
-
-  try {
-    await apiPost({
-      action: "cancel",
-      id,
-      studentId,
-      name
+    Object.entries(params).forEach(([key, value]) => {
+      url.searchParams.set(key, value);
     });
 
-    await fetchReservationsIfReady();
-    ensureReservationPanelOpen();
-    showMyReservations(myReservations);
-    showSlots(allSlots, myReservations);
-    scrollToReservationPanel();
-  } catch (error) {
-    btn.disabled = false;
-    btn.innerHTML = originalText;
-    showMessage("取消できませんでした: " + error.message, true);
-  }
-}
-    async function refreshReservationsAndSlots() {
-      if (!isUserReady()) {
-        myReservations = [];
-        showSlots(allSlots, myReservations);
-        return;
-      }
+    const response = await fetch(url.toString(), {
+      method: "GET"
+    });
 
-      try {
-        await fetchReservationsIfReady();
-      } catch (error) {
+    const result = await response.json();
+
+    if (!result.ok) {
+      throw new Error(result.error || "取得に失敗しました。");
+    }
+
+    return result.data;
+  }
+
+  async function apiPost(payload) {
+    const response = await fetch(API_BASE, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (!result.ok) {
+      throw new Error(result.error || "処理に失敗しました。");
+    }
+
+    return result.message;
+  }
+
+  function isUserReady() {
+    const studentId = document.getElementById("studentId").value.trim();
+    const name = document.getElementById("name").value.trim();
+    return /^\d{5}$/.test(studentId) && name !== "";
+  }
+
+  function updateStageAvailability() {
+    const stage = document.getElementById("stage");
+    const ready = isUserReady();
+
+    stage.disabled = !ready;
+
+    if (!ready) {
+      stage.value = "";
+      myReservations = [];
+      document.getElementById("slots").innerHTML = '<div class="empty">先に教習生番号と氏名を入力してください。</div>';
+    }
+  }
+
+  async function fetchReservationsIfReady() {
+    if (!isUserReady()) {
+      myReservations = [];
+      return;
+    }
+
+    const studentId = document.getElementById("studentId").value.trim();
+    const name = document.getElementById("name").value.trim();
+
+    myReservations = await apiGet("getMyReservations", { studentId, name });
+  }
+
+  async function loadSlots() {
+    const container = document.getElementById("slots");
+    container.innerHTML = '<div class="empty">読み込み中です…</div>';
+
+    try {
+      allSlots = await apiGet("getSlots");
+
+      if (isUserReady()) {
+        try {
+          await fetchReservationsIfReady();
+        } catch (error) {
+          myReservations = [];
+          showMessage("予約情報の取得に失敗しました: " + error.message, true);
+        }
+      } else {
         myReservations = [];
       }
 
       showSlots(allSlots, myReservations);
+    } catch (error) {
+      showError(error.message || error);
+    }
+  }
+
+  function showSlots(data, reservations) {
+    const container = document.getElementById("slots");
+    container.innerHTML = "";
+
+    const selectedStage = document.getElementById("stage").value;
+
+    if (!isUserReady()) {
+      container.innerHTML = '<div class="empty">先に教習生番号と氏名を入力してください。</div>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      container.innerHTML = '<div class="empty">現在、予約可能な授業はありません。</div>';
+      return;
+    }
+
+    if (!selectedStage) {
+      container.innerHTML = '<div class="empty">現在の段階を選択してください。</div>';
+      return;
+    }
+
+    const filtered = data.filter(slot => Number(slot.stage) === Number(selectedStage));
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="empty">現在、予約可能な授業はありません。</div>';
+      return;
+    }
+
+    const now = new Date();
+
+    filtered.forEach(function(slot) {
+      const div = document.createElement("div");
+      div.className = "slot";
+
+      const deadline = new Date(slot.deadline);
+      const isReserved = reservations.some(r => r.id === slot.id);
+      let buttonHtml = "";
+
+      if (isReserved) {
+        buttonHtml = '<button style="background:#4caf50;" disabled>予約完了</button>';
+      } else if (now > deadline) {
+        buttonHtml = '<span class="closed">受付終了</span>';
+      } else {
+        buttonHtml = '<button onclick="reserve(\'' + slot.id + '\', this)">予約する</button>';
+      }
+
+      div.innerHTML =
+        '<div class="slot-title">' + slot.date + '（' + slot.week + '） ' + slot.period + '限</div>' +
+        '<div>' + slot.subject + '</div>' +
+        '<div>' + slot.startTime + '～' + slot.endTime + '</div>' +
+        '<div class="deadline">締切: ' + slot.deadline + '</div>' +
+        '<div style="margin-top:8px;">' + buttonHtml + '</div>';
+
+      container.appendChild(div);
+    });
+  }
+
+  function showError(error) {
+    const container = document.getElementById("slots");
+    container.innerHTML = '<div class="empty">読込エラーが発生しました。</div>';
+    showMessage("読込エラー: " + error, true);
+  }
+
+  function scrollToReservationPanel() {
+    const panel = document.getElementById("reservationPanel");
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function reserve(id, btn) {
+    const studentId = document.getElementById("studentId").value.trim();
+    const name = document.getElementById("name").value.trim();
+    const stage = document.getElementById("stage").value;
+
+    if (!studentId || !name || !stage) {
+      showMessage("教習生番号・氏名・現在の段階を入力してください", true);
+      return;
+    }
+
+    if (!/^\d{5}$/.test(studentId)) {
+      showMessage("教習生番号は半角数字5桁で入力してください", true);
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = "送信中…";
+
+    try {
+      await apiPost({
+        action: "reserve",
+        id,
+        studentId,
+        name,
+        stage
+      });
+
+      btn.innerHTML = "予約完了";
+      btn.style.background = "#4caf50";
+
+      await fetchReservationsIfReady();
 
       const panel = document.getElementById("reservationPanel");
       if (!panel.classList.contains("hidden")) {
         showMyReservations(myReservations);
       }
+
+      showSlots(allSlots, myReservations);
+    } catch (error) {
+      btn.disabled = false;
+      btn.innerHTML = "予約する";
+      showMessage("予約できませんでした: " + error.message, true);
+    }
+  }
+
+  function toggleReservations() {
+    const panel = document.getElementById("reservationPanel");
+
+    if (panel.classList.contains("hidden")) {
+      panel.classList.remove("hidden");
+      loadMyReservations();
+    } else {
+      panel.classList.add("hidden");
+    }
+  }
+
+  function ensureReservationPanelOpen() {
+    const panel = document.getElementById("reservationPanel");
+    panel.classList.remove("hidden");
+  }
+
+  async function loadMyReservations() {
+    if (!isUserReady()) {
+      showMessage("教習生番号と氏名を入力してください", true);
+      return;
     }
 
-    window.onload = function() {
-  updateStageAvailability();
-  loadSlots();
+    try {
+      await fetchReservationsIfReady();
+      showMyReservations(myReservations);
+    } catch (error) {
+      showMessage("予約確認できませんでした: " + error.message, true);
+    }
+  }
 
-  scheduleInitialRefresh();
+  function showMyReservations(data) {
+    const container = document.getElementById("myReservations");
+    container.innerHTML = "";
 
-  document.getElementById("studentId").addEventListener("input", function() {
-    updateStageAvailability();
+    if (!data || data.length === 0) {
+      container.innerHTML = '<div class="empty">現在、予約中の授業はありません。</div>';
+      return;
+    }
 
-    clearTimeout(reservationFetchTimer);
-    reservationFetchTimer = setTimeout(function() {
-      refreshReservationsAndSlots();
-    }, 250);
-  });
+    data.forEach(function(item) {
+      const div = document.createElement("div");
+      div.className = "slot";
 
-  document.getElementById("name").addEventListener("input", function() {
-    updateStageAvailability();
+      div.innerHTML =
+        '<div class="slot-title" style="font-size:13px;">' + item.date + ' ' + item.period + '</div>' +
+        '<div>' + item.subject + '</div>' +
+        '<div style="margin-top:8px;">' +
+        '<button class="subtle-button" onclick="cancelReservation(\'' + item.id + '\', this)">この予約を取り消す</button>' +
+        '</div>';
 
-    clearTimeout(reservationFetchTimer);
-    reservationFetchTimer = setTimeout(function() {
-      refreshReservationsAndSlots();
-    }, 250);
-  });
+      container.appendChild(div);
+    });
+  }
 
-  document.getElementById("stage").addEventListener("change", function() {
-    showSlots(allSlots, myReservations);
-  });
-};
-      document.getElementById("stage").addEventListener("change", function() {
-        showSlots(allSlots, myReservations);
+  async function cancelReservation(id, btn) {
+    const studentId = document.getElementById("studentId").value.trim();
+    const name = document.getElementById("name").value.trim();
+
+    if (!studentId || !name) {
+      showMessage("教習生番号と氏名を入力してください", true);
+      return;
+    }
+
+    if (!/^\d{5}$/.test(studentId)) {
+      showMessage("教習生番号は半角数字5桁で入力してください", true);
+      return;
+    }
+
+    if (!confirm("この予約を取り消しますか？")) {
+      return;
+    }
+
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = "取消中…";
+
+    try {
+      await apiPost({
+        action: "cancel",
+        id,
+        studentId,
+        name
       });
-    };
-    function scheduleInitialRefresh() {
-  setTimeout(function() {
+
+      await fetchReservationsIfReady();
+      ensureReservationPanelOpen();
+      showMyReservations(myReservations);
+      showSlots(allSlots, myReservations);
+      scrollToReservationPanel();
+    } catch (error) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+      showMessage("取消できませんでした: " + error.message, true);
+    }
+  }
+
+  async function refreshReservationsAndSlots() {
+    if (!isUserReady()) {
+      myReservations = [];
+      showSlots(allSlots, myReservations);
+      return;
+    }
+
+    try {
+      await fetchReservationsIfReady();
+    } catch (error) {
+      myReservations = [];
+    }
+
+    showSlots(allSlots, myReservations);
+
+    const panel = document.getElementById("reservationPanel");
+    if (!panel.classList.contains("hidden")) {
+      showMyReservations(myReservations);
+    }
+  }
+
+  function scheduleInitialRefresh() {
+    setTimeout(function() {
+      updateStageAvailability();
+      refreshReservationsAndSlots();
+    }, 300);
+  }
+
+  window.onload = function() {
     updateStageAvailability();
-    refreshReservationsAndSlots();
-  }, 300);
-}  </script>
+    loadSlots();
+
+    scheduleInitialRefresh();
+
+    document.getElementById("studentId").addEventListener("input", function() {
+      updateStageAvailability();
+
+      clearTimeout(reservationFetchTimer);
+      reservationFetchTimer = setTimeout(function() {
+        refreshReservationsAndSlots();
+      }, 250);
+    });
+
+    document.getElementById("name").addEventListener("input", function() {
+      updateStageAvailability();
+
+      clearTimeout(reservationFetchTimer);
+      reservationFetchTimer = setTimeout(function() {
+        refreshReservationsAndSlots();
+      }, 250);
+    });
+
+    document.getElementById("stage").addEventListener("change", function() {
+      showSlots(allSlots, myReservations);
+    });
+  };
+
+  window.addEventListener("pageshow", function() {
+    scheduleInitialRefresh();
+  });
+  </script>
 </body>
 </html>
