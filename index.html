@@ -617,31 +617,42 @@
     }
 
     window.onload = function() {
-      updateStageAvailability();
-      loadSlots();
+  updateStageAvailability();
+  loadSlots();
 
-      document.getElementById("studentId").addEventListener("input", function() {
-        updateStageAvailability();
+  scheduleInitialRefresh();
 
-        clearTimeout(reservationFetchTimer);
-        reservationFetchTimer = setTimeout(function() {
-          refreshReservationsAndSlots();
-        }, 250);
-      });
+  document.getElementById("studentId").addEventListener("input", function() {
+    updateStageAvailability();
 
-      document.getElementById("name").addEventListener("input", function() {
-        updateStageAvailability();
+    clearTimeout(reservationFetchTimer);
+    reservationFetchTimer = setTimeout(function() {
+      refreshReservationsAndSlots();
+    }, 250);
+  });
 
-        clearTimeout(reservationFetchTimer);
-        reservationFetchTimer = setTimeout(function() {
-          refreshReservationsAndSlots();
-        }, 250);
-      });
+  document.getElementById("name").addEventListener("input", function() {
+    updateStageAvailability();
 
+    clearTimeout(reservationFetchTimer);
+    reservationFetchTimer = setTimeout(function() {
+      refreshReservationsAndSlots();
+    }, 250);
+  });
+
+  document.getElementById("stage").addEventListener("change", function() {
+    showSlots(allSlots, myReservations);
+  });
+};
       document.getElementById("stage").addEventListener("change", function() {
         showSlots(allSlots, myReservations);
       });
     };
-  </script>
+    function scheduleInitialRefresh() {
+  setTimeout(function() {
+    updateStageAvailability();
+    refreshReservationsAndSlots();
+  }, 300);
+}  </script>
 </body>
 </html>
