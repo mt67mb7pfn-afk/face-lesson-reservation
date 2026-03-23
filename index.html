@@ -548,49 +548,54 @@
           '<div class="slot-title" style="font-size:13px;">' + item.date + ' ' + item.period + '</div>' +
           '<div>' + item.subject + '</div>' +
           '<div style="margin-top:8px;">' +
-          '<button class="subtle-button" onclick="cancelReservation(\'' + item.id + '\')">この予約を取り消す</button>' +
+          '<button class="subtle-button" onclick="cancelReservation(\'' + item.id + '\', this)">この予約を取り消す</button>'
           '</div>';
 
         container.appendChild(div);
       });
     }
 
-    async function cancelReservation(id) {
-      const studentId = document.getElementById("studentId").value.trim();
-      const name = document.getElementById("name").value.trim();
+    async function cancelReservation(id, btn) {
+  const studentId = document.getElementById("studentId").value.trim();
+  const name = document.getElementById("name").value.trim();
 
-      if (!studentId || !name) {
-        showMessage("教習生番号と氏名を入力してください", true);
-        return;
-      }
+  if (!studentId || !name) {
+    showMessage("教習生番号と氏名を入力してください", true);
+    return;
+  }
 
-      if (!/^\d{5}$/.test(studentId)) {
-        showMessage("教習生番号は半角数字5桁で入力してください", true);
-        return;
-      }
+  if (!/^\d{5}$/.test(studentId)) {
+    showMessage("教習生番号は半角数字5桁で入力してください", true);
+    return;
+  }
 
-      if (!confirm("この予約を取り消しますか？")) {
-        return;
-      }
+  if (!confirm("この予約を取り消しますか？")) {
+    return;
+  }
 
-      try {
-        const message = await apiPost({
-          action: "cancel",
-          id,
-          studentId,
-          name
-        });
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = "取消中…";
 
-        await fetchReservationsIfReady();
-        ensureReservationPanelOpen();
-        showMyReservations(myReservations);
-        showSlots(allSlots, myReservations);
-        scrollToReservationPanel();
-      } catch (error) {
-        showMessage("取消できませんでした: " + error.message, true);
-      }
-    }
+  try {
+    await apiPost({
+      action: "cancel",
+      id,
+      studentId,
+      name
+    });
 
+    await fetchReservationsIfReady();
+    ensureReservationPanelOpen();
+    showMyReservations(myReservations);
+    showSlots(allSlots, myReservations);
+    scrollToReservationPanel();
+  } catch (error) {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+    showMessage("取消できませんでした: " + error.message, true);
+  }
+}
     async function refreshReservationsAndSlots() {
       if (!isUserReady()) {
         myReservations = [];
