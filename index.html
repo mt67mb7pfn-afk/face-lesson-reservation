@@ -545,12 +545,11 @@
         div.className = "slot";
 
         div.innerHTML =
-          '<div class="slot-title" style="font-size:13px;">' + item.date + ' ' + item.period + '</div>' +
-          '<div>' + item.subject + '</div>' +
-          '<div style="margin-top:8px;">' +
-          '<button class="subtle-button" onclick="cancelReservation(\'' + item.id + '\', this)">この予約を取り消す</button>'
-          '</div>';
-
+  '<div class="slot-title" style="font-size:13px;">' + item.date + ' ' + item.period + '</div>' +
+  '<div>' + item.subject + '</div>' +
+  '<div style="margin-top:8px;">' +
+  '<button class="subtle-button" onclick="cancelReservation(\'' + item.id + '\', this)">この予約を取り消す</button>' +
+  '</div>';
         container.appendChild(div);
       });
     }
