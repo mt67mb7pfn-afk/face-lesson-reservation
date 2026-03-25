@@ -354,18 +354,16 @@
         document.getElementById("slots").innerHTML = '<div class="empty">先に教習生番号と氏名を入力してください。</div>';
       }
     }
+async function fetchReservationsIfReady() {
+  const studentId = document.getElementById("studentId").value.trim();
 
-    async function fetchReservationsIfReady() {
-      if (!isUserReady()) {
-        myReservations = [];
-        return;
-      }
+  if (!/^\d{5}$/.test(studentId)) {
+    myReservations = [];
+    return;
+  }
 
-      const studentId = document.getElementById("studentId").value.trim();
-      const name = document.getElementById("name").value.trim();
-
-      myReservations = await apiGet("getMyReservations", { studentId, name });
-    }
+  myReservations = await apiGet("getMyReservations", { studentId });
+}    
 
     async function loadSlots() {
       const container = document.getElementById("slots");
