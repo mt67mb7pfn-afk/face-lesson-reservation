@@ -262,7 +262,6 @@
 
     let allSlots = [];
     let myReservations = [];
-    let reservationFetchTimer = null;
 
     function showMessage(message, isError) {
       let box = document.getElementById("messageBox");
@@ -622,35 +621,26 @@ async function cancelReservation(id, btn) {
       }
     }
 
-    function scheduleInitialRefresh() {
-  setTimeout(function() {
+    
+    window.onload = function() {
+  updateStageAvailability();
+  loadSlots();
+
+  document.getElementById("studentId").addEventListener("input", function() {
     updateStageAvailability();
     showSlots(allSlots, myReservations);
-  }, 300);
-}
-    window.onload = function() {
-      updateStageAvailability();
-      loadSlots();
+  });
 
-      scheduleInitialRefresh();
+  document.getElementById("name").addEventListener("input", function() {
+    updateStageAvailability();
+    showSlots(allSlots, myReservations);
+  });
 
-      document.getElementById("studentId").addEventListener("input", function() {
-  updateStageAvailability();
-  showSlots(allSlots, myReservations);
-});
-
-document.getElementById("name").addEventListener("input", function() {
-  updateStageAvailability();
-  showSlots(allSlots, myReservations);
-});
-      document.getElementById("stage").addEventListener("change", function() {
-        showSlots(allSlots, myReservations);
-      });
-    };
-
-    window.addEventListener("pageshow", function() {
-      scheduleInitialRefresh();
-    });
+  document.getElementById("stage").addEventListener("change", function() {
+    showSlots(allSlots, myReservations);
+  });
+};
+    
   </script>
 </body>
 </html>
