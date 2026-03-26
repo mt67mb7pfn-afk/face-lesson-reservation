@@ -366,29 +366,17 @@ async function fetchReservationsIfReady() {
   myReservations = await apiGet("getMyReservations", { studentId, name });
 }
 
-    async function loadSlots() {
-      const container = document.getElementById("slots");
-      container.innerHTML = '<div class="empty">読み込み中です…</div>';
+async function loadSlots() {
+  const container = document.getElementById("slots");
+  container.innerHTML = '<div class="empty">読み込み中です…</div>';
 
-      try {
-        allSlots = await apiGet("getSlots");
-
-        if (isUserReady()) {
-          try {
-            await fetchReservationsIfReady();
-          } catch (error) {
-            myReservations = [];
-            showMessage("予約情報の取得に失敗しました: " + error.message, true);
-          }
-        } else {
-          myReservations = [];
-        }
-
-        showSlots(allSlots, myReservations);
-      } catch (error) {
-        showError(error.message || error);
-      }
-    }
+  try {
+    allSlots = await apiGet("getSlots");
+    showSlots(allSlots, myReservations);
+  } catch (error) {
+    showError(error.message || error);
+  }
+}
 
     function showSlots(data, reservations) {
       const container = document.getElementById("slots");
@@ -635,12 +623,11 @@ async function cancelReservation(id, btn) {
     }
 
     function scheduleInitialRefresh() {
-      setTimeout(function() {
-        updateStageAvailability();
-        refreshReservationsAndSlots();
-      }, 300);
-    }
-
+  setTimeout(function() {
+    updateStageAvailability();
+    showSlots(allSlots, myReservations);
+  }, 300);
+}
     window.onload = function() {
       updateStageAvailability();
       loadSlots();
@@ -648,23 +635,14 @@ async function cancelReservation(id, btn) {
       scheduleInitialRefresh();
 
       document.getElementById("studentId").addEventListener("input", function() {
-        updateStageAvailability();
+  updateStageAvailability();
+  showSlots(allSlots, myReservations);
+});
 
-        clearTimeout(reservationFetchTimer);
-        reservationFetchTimer = setTimeout(function() {
-          refreshReservationsAndSlots();
-        }, 250);
-      });
-
-      document.getElementById("name").addEventListener("input", function() {
-        updateStageAvailability();
-
-        clearTimeout(reservationFetchTimer);
-        reservationFetchTimer = setTimeout(function() {
-          refreshReservationsAndSlots();
-        }, 250);
-      });
-
+document.getElementById("name").addEventListener("input", function() {
+  updateStageAvailability();
+  showSlots(allSlots, myReservations);
+});
       document.getElementById("stage").addEventListener("change", function() {
         showSlots(allSlots, myReservations);
       });
