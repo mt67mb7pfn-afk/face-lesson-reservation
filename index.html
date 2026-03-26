@@ -504,16 +504,17 @@ async function fetchReservationsIfReady() {
     }
 
     function toggleReservations() {
-      const panel = document.getElementById("reservationPanel");
+  const panel = document.getElementById("reservationPanel");
+  const container = document.getElementById("myReservations");
 
-      if (panel.classList.contains("hidden")) {
-        panel.classList.remove("hidden");
-        loadMyReservations();
-      } else {
-        panel.classList.add("hidden");
-      }
-    }
-
+  if (panel.classList.contains("hidden")) {
+    panel.classList.remove("hidden");
+    container.innerHTML = '<div class="empty">予約内容を確認中です…</div>';
+    loadMyReservations();
+  } else {
+    panel.classList.add("hidden");
+  }
+}
     function ensureReservationPanelOpen() {
       const panel = document.getElementById("reservationPanel");
       panel.classList.remove("hidden");
@@ -522,6 +523,7 @@ async function fetchReservationsIfReady() {
     async function loadMyReservations() {
   const studentId = document.getElementById("studentId").value.trim();
   const name = document.getElementById("name").value.trim();
+  const container = document.getElementById("myReservations");
 
   if (!/^\d{5}$/.test(studentId)) {
     showMessage("教習生番号は半角数字5桁で入力してください", true);
@@ -533,10 +535,13 @@ async function fetchReservationsIfReady() {
     return;
   }
 
+  container.innerHTML = '<div class="empty">予約内容を確認中です…</div>';
+
   try {
     await fetchReservationsIfReady();
     showMyReservations(myReservations);
   } catch (error) {
+    container.innerHTML = '<div class="empty">予約確認できませんでした。</div>';
     showMessage("予約確認できませんでした: " + error.message, true);
   }
 }
