@@ -510,7 +510,10 @@ async function fetchReservationsIfReady() {
   if (panel.classList.contains("hidden")) {
     panel.classList.remove("hidden");
     container.innerHTML = '<div class="empty">予約内容を確認中です…</div>';
-    loadMyReservations();
+
+    setTimeout(function() {
+      loadMyReservations();
+    }, 50);
   } else {
     panel.classList.add("hidden");
   }
@@ -538,8 +541,9 @@ async function fetchReservationsIfReady() {
   container.innerHTML = '<div class="empty">予約内容を確認中です…</div>';
 
   try {
-    await fetchReservationsIfReady();
-    showMyReservations(myReservations);
+    const data = await apiGet("getMyReservations", { studentId, name });
+    myReservations = data;
+    showMyReservations(data);
   } catch (error) {
     container.innerHTML = '<div class="empty">予約確認できませんでした。</div>';
     showMessage("予約確認できませんでした: " + error.message, true);
