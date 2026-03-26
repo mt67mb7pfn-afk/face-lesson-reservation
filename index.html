@@ -356,14 +356,15 @@
     }
 async function fetchReservationsIfReady() {
   const studentId = document.getElementById("studentId").value.trim();
+  const name = document.getElementById("name").value.trim();
 
-  if (!/^\d{5}$/.test(studentId)) {
+  if (!/^\d{5}$/.test(studentId) || !name.trim()) {
     myReservations = [];
     return;
   }
 
-  myReservations = await apiGet("getMyReservations", { studentId });
-}    
+  myReservations = await apiGet("getMyReservations", { studentId, name });
+}
 
     async function loadSlots() {
       const container = document.getElementById("slots");
@@ -519,15 +520,26 @@ async function fetchReservationsIfReady() {
     }
 
     async function loadMyReservations() {
+  const studentId = document.getElementById("studentId").value.trim();
+  const name = document.getElementById("name").value.trim();
 
-      try {
-        await fetchReservationsIfReady();
-        showMyReservations(myReservations);
-      } catch (error) {
-        showMessage("予約確認できませんでした: " + error.message, true);
-      }
-    }
+  if (!/^\d{5}$/.test(studentId)) {
+    showMessage("教習生番号は半角数字5桁で入力してください", true);
+    return;
+  }
 
+  if (!name.trim()) {
+    showMessage("氏名を入力してください", true);
+    return;
+  }
+
+  try {
+    await fetchReservationsIfReady();
+    showMyReservations(myReservations);
+  } catch (error) {
+    showMessage("予約確認できませんでした: " + error.message, true);
+  }
+}
     function showMyReservations(data) {
       const container = document.getElementById("myReservations");
       container.innerHTML = "";
@@ -553,9 +565,15 @@ async function fetchReservationsIfReady() {
     }
 async function cancelReservation(id, btn) {
   const studentId = document.getElementById("studentId").value.trim();
+  const name = document.getElementById("name").value.trim();
 
   if (!/^\d{5}$/.test(studentId)) {
     showMessage("教習生番号は半角数字5桁で入力してください", true);
+    return;
+  }
+
+  if (!name.trim()) {
+    showMessage("氏名を入力してください", true);
     return;
   }
 
@@ -571,7 +589,8 @@ async function cancelReservation(id, btn) {
     await apiPost({
       action: "cancel",
       id,
-      studentId
+      studentId,
+      name
     });
 
     await fetchReservationsIfReady();
@@ -584,8 +603,7 @@ async function cancelReservation(id, btn) {
     btn.innerHTML = originalText;
     showMessage("取消できませんでした: " + error.message, true);
   }
-}    
-
+}
     async function refreshReservationsAndSlots() {
       if (!isUserReady()) {
         myReservations = [];
