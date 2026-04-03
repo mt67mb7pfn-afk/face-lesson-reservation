@@ -461,7 +461,21 @@ async function loadSlots() {
         container.appendChild(div);
       });
     }
+    async function syncReservationsInBackground() {
+  if (!isUserReady()) return;
 
+  try {
+    await fetchReservationsIfReady();
+    showSlots(allSlots, myReservations);
+
+    const panel = document.getElementById("reservationPanel");
+    if (!panel.classList.contains("hidden")) {
+      showMyReservations(myReservations);
+    }
+  } catch (error) {
+    console.error("予約情報の同期に失敗:", error);
+  }
+}
     function showError(error) {
       const container = document.getElementById("slots");
       container.innerHTML = '<div class="empty">読込エラーが発生しました。</div>';
@@ -665,9 +679,10 @@ async function cancelReservation(id, btn) {
   });
 
   document.getElementById("stage").addEventListener("change", function() {
-    showSlots(allSlots, myReservations);
-  });
-};
+  showSlots(allSlots, myReservations);
+  syncReservationsInBackground();
+});
+    };
     
   </script>
 </body>
