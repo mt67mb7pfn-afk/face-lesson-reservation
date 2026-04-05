@@ -618,6 +618,8 @@ btn.style.background = "#2d5bbf";
     panel.classList.remove("hidden");
     container.innerHTML = '<div class="empty">予約内容を確認中です…</div>';
 
+    scrollToReservationPanel();
+
     setTimeout(function() {
       loadMyReservations();
     }, 50);
