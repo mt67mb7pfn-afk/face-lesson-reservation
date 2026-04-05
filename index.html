@@ -41,16 +41,16 @@
     }
 
     .lead-box {
-      background: #ffffff;
-      border-left: 4px solid #2d7ff9;
-      border-radius: 8px;
-      padding: 8px 10px;
-      margin-bottom: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-      line-height: 1.35;
-      font-size: 10px;
-    }
-
+  background: #ffffff;
+  border-left: 4px solid #2d7ff9;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  line-height: 1.5;
+  font-size: 12px;
+}
+    
     .card {
       background: #fff;
       border-radius: 8px;
@@ -68,39 +68,40 @@
     }
 
     .input-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px;
-      margin-bottom: 4px;
-    }
-
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+    
     .input-row input {
-      width: 100%;
-      height: 30px;
-      padding: 2px 8px;
-      margin: 0;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 16px;
-      background: #fff;
-    }
-
+  width: 100%;
+  height: 40px;
+  padding: 6px 10px;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  background: #fff;
+}
+    
     .stage-label {
-      font-size: 9px;
-      color: #2d7ff9;
-      margin-bottom: 2px;
-    }
-
+  font-size: 11px;
+  color: #2d7ff9;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+    
     .stage-select {
-      width: 100%;
-      height: 30px;
-      border: 1.5px solid #2d7ff9;
-      border-radius: 6px;
-      font-size: 16px;
-      background: #f5f9ff;
-      padding: 0 8px;
-    }
-
+  width: 100%;
+  height: 40px;
+  border: 1.5px solid #2d7ff9;
+  border-radius: 6px;
+  font-size: 16px;
+  background: #f5f9ff;
+  padding: 0 10px;
+}
+    
     .stage-select:disabled {
       background: #f0f0f0;
       color: #999;
@@ -113,11 +114,11 @@
     }
 
     .note {
-      font-size: 9px;
-      color: #666;
-      line-height: 1.25;
-    }
-
+  font-size: 11px;
+  color: #666;
+  line-height: 1.5;
+}
+    
     .action-row {
       margin-bottom: 8px;
     }
@@ -228,6 +229,31 @@
     font-size: 12px;
     padding: 9px 10px;
   }
+  .info-toggle {
+  margin-top: 8px;
+  border-top: 1px solid #eee;
+  padding-top: 6px;
+}
+
+.info-toggle summary {
+  font-size: 11px;
+  color: #2d7ff9;
+  cursor: pointer;
+  list-style: none;
+  font-weight: bold;
+}
+
+.info-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.info-toggle summary::before {
+  content: "▶ ";
+}
+
+.info-toggle[open] summary::before {
+  content: "▼ ";
+}
 }
   </style>
 </head>
@@ -246,29 +272,32 @@
   </a>
 </div>
     <div class="card sticky-card">
-      <div class="input-row">
-        <input id="studentId" maxlength="5" inputmode="numeric" placeholder="教習生番号(半角数字5桁)">
-        <input id="name" placeholder="氏名">
-      </div>
+  <div class="input-row">
+    <input id="studentId" maxlength="5" inputmode="numeric" placeholder="教習生番号（半角数字5桁）">
+    <input id="name" placeholder="氏名">
+  </div>
 
-      <div style="margin-bottom:4px;">
-        <div class="stage-label">現在の段階を選択</div>
-        <select id="stage" class="stage-select" disabled>
-          <option value="">現在の段階を選択</option>
-          <option value="1">第1段階</option>
-          <option value="2">第2段階</option>
-        </select>
-      </div>
+  <div style="margin-bottom:6px;">
+    <div class="stage-label">現在の段階</div>
+    <select id="stage" class="stage-select" disabled>
+      <option value="">現在の段階を選択</option>
+      <option value="1">第1段階</option>
+      <option value="2">第2段階</option>
+    </select>
+  </div>
 
-      <div class="note">
-        ・教習生番号は半角数字（例：01234）で入力してください。<br>
-        ・表示されている授業のみ予約できます。<br>
-        ・同じ授業の重複予約はできません。<br>
-        ・予約は受講日の3日前まで可能です。<br>
-        ・受講希望者がいない場合、対面学科は実施しない場合があります。
-      </div>
+  <details class="info-toggle">
+    <summary>利用上の注意を見る</summary>
+    <div class="note" style="margin-top:6px;">
+      ・教習生番号は半角数字（例：01234）で入力してください。<br>
+      ・表示されている授業のみ予約できます。<br>
+      ・同じ授業の重複予約はできません。<br>
+      ・予約は受講日の3日前まで可能です。<br>
+      ・受講希望者がいない場合、対面学科は実施しない場合があります。
     </div>
-
+  </details>
+</div>
+    
     <div class="card">
       <h3>予約可能な授業（2週間先まで）</h3>
       <div id="slots" class="empty">読み込み中です…</div>
