@@ -272,7 +272,8 @@
    style="display:block; font-size:11px; color:#2d7ff9; text-decoration:none;">    ▶ 1ヶ月分の学科時間割はこちら
   </a>
 </div>
-    <div class="card sticky-card">
+    <!-- sticky：入力だけ -->
+<div class="card sticky-card">
   <div class="input-row">
     <input id="studentId" maxlength="5" inputmode="numeric" placeholder="教習生番号（半角数字5桁）">
     <input id="name" placeholder="氏名">
@@ -286,7 +287,10 @@
       <option value="2">第2段階</option>
     </select>
   </div>
+</div>
 
+<!-- 非sticky：注意文 -->
+<div class="card">
   <details class="info-toggle">
     <summary>利用上の注意を見る</summary>
     <div class="note" style="margin-top:6px;">
