@@ -294,6 +294,30 @@
   opacity: 0.96;
   z-index: 1;
 }
+    .floating-check-button {
+  position: fixed;
+  right: 12px;
+  bottom: 16px;
+  z-index: 30;
+  width: auto;
+  min-width: 110px;
+  padding: 12px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2d5bbf, #4a7bdc);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(45, 91, 191, 0.28);
+}
+    @media (max-width: 380px) {
+  .floating-check-button {
+    right: 10px;
+    bottom: 12px;
+    min-width: 100px;
+    padding: 11px 12px;
+    font-size: 12px;
+  }
+}
   </style>
 </head>
 
@@ -722,6 +746,24 @@ async function cancelReservation(id, btn) {
     showMessage("取消できませんでした: " + error.message, true);
   }
 }
+    function openReservationsFromFloatingButton() {
+  const panel = document.getElementById("reservationPanel");
+  const container = document.getElementById("myReservations");
+
+  // パネル開く
+  panel.classList.remove("hidden");
+
+  // 読み込み中表示
+  container.innerHTML = '<div class="empty">予約内容を確認中です…</div>';
+
+  // スクロール
+  scrollToReservationPanel();
+
+  // データ取得
+  setTimeout(function() {
+    loadMyReservations();
+  }, 50);
+}
     async function refreshReservationsAndSlots() {
       if (!isUserReady()) {
         myReservations = [];
@@ -765,5 +807,9 @@ async function cancelReservation(id, btn) {
     };
     
   </script>
+  <button type="button" class="floating-check-button" onclick="openReservationsFromFloatingButton()">
+  予約確認
+</button>
+
 </body>
 </html>
