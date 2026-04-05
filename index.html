@@ -381,8 +381,7 @@
 
     <div class="card">
       <div class="action-row">
-        <button type="button" class="subtle-button" onclick="toggleReservations()">自分の予約を確認・取消</button>
-      </div>
+        <button type="button" class="subtle-button" onclick="toggleReservations(this)">自分の予約を確認・取消</button>      </div>
       <div id="reservationPanel" class="hidden">
         <div id="myReservations" class="empty">教習生番号と氏名を入力して確認してください。</div>
       </div>
@@ -635,17 +634,31 @@ btn.style.background = "#27ae60";
       }
     }
 
-    function toggleReservations() {
+    function toggleReservations(btn) {
   const panel = document.getElementById("reservationPanel");
   const container = document.getElementById("myReservations");
 
   if (panel.classList.contains("hidden")) {
+    if (btn) {
+      btn.disabled = true;
+      btn.dataset.originalText = btn.innerHTML;
+      btn.innerHTML = '確認中<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>';
+    }
+
     panel.classList.remove("hidden");
     container.innerHTML = '<div class="empty">予約内容を確認中です…</div>';
 
-    setTimeout(function() {
-      loadMyReservations();
+    setTimeout(async function() {
+      try {
+        await loadMyReservations();
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = btn.dataset.originalText || "自分の予約を確認・取消";
+        }
+      }
     }, 50);
+
   } else {
     panel.classList.add("hidden");
   }
@@ -745,22 +758,30 @@ async function cancelReservation(id, btn) {
     showMessage("取消できませんでした: " + error.message, true);
   }
 }
-    function openReservationsFromFloatingButton() {
+    function openReservationsFromFloatingButton(btn) {
   const panel = document.getElementById("reservationPanel");
   const container = document.getElementById("myReservations");
 
-  // パネル開く
-  panel.classList.remove("hidden");
+  if (btn) {
+    btn.disabled = true;
+    btn.dataset.originalText = btn.innerHTML;
+    btn.innerHTML = '確認中<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>';
+  }
 
-  // 読み込み中表示
+  panel.classList.remove("hidden");
   container.innerHTML = '<div class="empty">予約内容を確認中です…</div>';
 
-  // スクロール
   scrollToReservationPanel();
 
-  // データ取得
-  setTimeout(function() {
-    loadMyReservations();
+  setTimeout(async function() {
+    try {
+      await loadMyReservations();
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.originalText || "予約確認";
+      }
+    }
   }, 50);
 }
     async function refreshReservationsAndSlots() {
@@ -806,9 +827,8 @@ async function cancelReservation(id, btn) {
     };
     
   </script>
-  <button type="button" class="floating-check-button" onclick="openReservationsFromFloatingButton()">
+  <button type="button" class="floating-check-button" onclick="openReservationsFromFloatingButton(this)">
   予約確認
 </button>
-
 </body>
 </html>
