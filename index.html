@@ -549,8 +549,7 @@ async function loadSlots() {
         let buttonHtml = "";
 
         if (isReserved) {
-          buttonHtml = '<button style="background:#2d5bbf;" disabled>予約完了</button>';
-        } else if (now > deadline) {
+          buttonHtml = '<button style="background:#2ecc71;" disabled>予約完了</button>';        } else if (now > deadline) {
           buttonHtml = '<span class="closed">受付終了</span>';
         } else {
           buttonHtml = '<button onclick="reserve(\'' + slot.id + '\', this)">予約する</button>';
@@ -620,7 +619,7 @@ async function loadSlots() {
         });
 
         btn.innerHTML = "予約完了";
-btn.style.background = "#2d5bbf";
+btn.style.background = "#27ae60";
         await fetchReservationsIfReady();
 
         const panel = document.getElementById("reservationPanel");
@@ -643,8 +642,6 @@ btn.style.background = "#2d5bbf";
   if (panel.classList.contains("hidden")) {
     panel.classList.remove("hidden");
     container.innerHTML = '<div class="empty">予約内容を確認中です…</div>';
-
-    scrollToReservationPanel();
 
     setTimeout(function() {
       loadMyReservations();
