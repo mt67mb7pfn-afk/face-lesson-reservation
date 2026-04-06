@@ -548,12 +548,15 @@ async function loadSlots() {
         let buttonHtml = "";
 
         if (isReserved) {
-          buttonHtml = '<button style="background:#2ecc71;" disabled>予約完了</button>';        } else if (now > deadline) {
-          buttonHtml = '<span class="closed">受付終了</span>';
-        } else {
-          buttonHtml = '<button onclick="reserve(\'' + slot.id + '\', this)">予約する</button>';
-        }
-
+  buttonHtml =
+    '<button style="background:#27ae60;" disabled>✓ 予約済み</button>' +
+    '<button class="subtle-button" style="margin-top:8px;" onclick="cancelReservation(\'' + slot.id + '\', this)">この予約を取り消す</button>';
+} else if (now > deadline) {
+  buttonHtml = '<span class="closed">受付終了</span>';
+} else {
+  buttonHtml = '<button onclick="reserve(\'' + slot.id + '\', this)">予約する</button>';
+}
+        
         div.innerHTML =
           '<div class="slot-title">' + slot.date + '（' + slot.week + '） ' + slot.period + '限</div>' +
           '<div>' + slot.subject + '</div>' +
@@ -751,8 +754,8 @@ async function cancelReservation(id, btn) {
     ensureReservationPanelOpen();
     showMyReservations(myReservations);
     showSlots(allSlots, myReservations);
-    scrollToReservationPanel();
-  } catch (error) {
+  }
+  catch (error) {
     btn.disabled = false;
     btn.innerHTML = originalText;
     showMessage("取消できませんでした: " + error.message, true);
@@ -771,7 +774,6 @@ async function cancelReservation(id, btn) {
   panel.classList.remove("hidden");
   container.innerHTML = '<div class="empty">予約内容を確認中です…</div>';
 
-  scrollToReservationPanel();
 
   setTimeout(async function() {
     try {
@@ -779,7 +781,7 @@ async function cancelReservation(id, btn) {
     } finally {
       if (btn) {
         btn.disabled = false;
-        btn.innerHTML = btn.dataset.originalText || "予約確認";
+        btn.innerHTML = btn.dataset.originalText || "予約確認・取消";
       }
     }
   }, 50);
