@@ -465,17 +465,22 @@
     }
 
     async function loadSlots() {
-      const container = document.getElementById("slots");
-      container.innerHTML = '<div class="empty">読み込み中です…</div>';
+  const container = document.getElementById("slots");
+  container.innerHTML = '<div class="empty">読み込み中です…</div>';
 
-      try {
-        allSlots = await apiGet("getSlots");
-        showSlots(allSlots, myReservations);
-      } catch (error) {
-        showError(error.message || error);
-      }
-    }
+  try {
+    allSlots = await apiGet("getSlots");
 
+    container.innerHTML = '<div class="empty">予約状況を確認中です…</div>';
+
+    await fetchReservationsIfReady();
+
+    showSlots(allSlots, myReservations);
+  } catch (error) {
+    showError(error.message || error);
+  }
+}
+    
     function showSlots(data, reservations) {
       const container = document.getElementById("slots");
       container.innerHTML = "";
