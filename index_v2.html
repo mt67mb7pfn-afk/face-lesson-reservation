@@ -654,14 +654,15 @@
       
       try {
         await apiPost({
-          action: "cancel",
-          id,
-          studentId,
-          name
-        });
+  action: "cancel",
+  id,
+  studentId,
+  name
+});
 
-        await fetchReservationsIfReady();
-        showSlots(allSlots, myReservations);
+myReservations = myReservations.filter(r => r.id !== id);
+showSlots(allSlots, myReservations);
+showMessage("予約を取り消しました。", false);
       } catch (error) {
         btn.disabled = false;
         btn.innerHTML = originalText;
