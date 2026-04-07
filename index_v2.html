@@ -665,10 +665,24 @@
         showSlots(allSlots, myReservations);
       });
 
-      document.getElementById("stage").addEventListener("change", function() {
-        showSlots(allSlots, myReservations);
-        syncReservationsInBackground();
-      });
+      document.getElementById("stage").addEventListener("change", async function() {
+  const container = document.getElementById("slots");
+
+  if (!isUserReady()) {
+    showSlots(allSlots, myReservations);
+    return;
+  }
+
+  container.innerHTML = '<div class="empty">予約状況を確認中です…</div>';
+
+  try {
+    await fetchReservationsIfReady();
+  } catch (error) {
+    myReservations = [];
+  }
+
+  showSlots(allSlots, myReservations);
+});
     };
   </script>
 </body>
