@@ -471,8 +471,26 @@
   try {
     allSlots = await apiGet("getSlots");
 
-    container.innerHTML = '<div class="empty">予約状況を確認中です…</div>';
-
+    container.innerHTML = `
+  <div style="
+    text-align:center;
+    padding:18px;
+    background:#f4f8ff;
+    border-radius:12px;
+    border:1px solid #dbe7ff;
+    color:#2d5bbf;
+    font-size:13px;
+    font-weight:700;
+  ">
+    あなたの予約状況を確認しています
+    <div style="margin-top:6px;">
+      <span class="loading-dots">
+        <span>●</span><span>●</span><span>●</span>
+      </span>
+    </div>
+  </div>
+`;
+    
     await fetchReservationsIfReady();
 
     showSlots(allSlots, myReservations);
