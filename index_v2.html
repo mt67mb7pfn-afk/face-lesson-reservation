@@ -181,10 +181,6 @@
       font-size: 12px;
     }
 
-    .hidden {
-      display: none;
-    }
-
     .loading-dots {
       display: inline-flex;
       gap: 2px;
@@ -342,7 +338,7 @@
 
     <div class="card">
       <h3>予約可能な授業（3週間先まで）</h3>
-      <div id="slots" class="empty">読み込み中です…</div>
+      <div id="slots" class="empty">教習生番号・氏名・段階を入力すると授業一覧が表示されます。</div>
     </div>
 
   </div>
@@ -352,6 +348,7 @@
 
     let allSlots = [];
     let myReservations = [];
+    let isLoading = false;
 
     function showMessage(message, isError) {
       let box = document.getElementById("messageBox");
@@ -417,35 +414,40 @@
       stage.disabled = !ready;
       if (!ready) {
         stage.value = "";
+        allSlots = [];
         myReservations = [];
-        document.getElementById("slots").innerHTML = '<div class="empty">先に教習生番号と氏名を入力してください。</div>';
+        document.getElementById("slots").innerHTML =
+          '<div class="empty">教習生番号・氏名・段階を入力すると授業一覧が表示されます。</div>';
       }
     }
 
-    async function fetchReservationsIfReady() {
+    async function loadSlotsAndReservations() {
+      if (!isUserReady()) return;
+      const stage = document.getElementById("stage").value;
+      if (!stage) return;
+      if (isLoading) return;
+      isLoading = true;
+
       const studentId = document.getElementById("studentId").value.trim();
       const name = document.getElementById("name").value.trim();
-      if (!/^\d{5}$/.test(studentId) || !name.trim()) {
-        myReservations = [];
-        return;
-      }
-      myReservations = await apiGet("getMyReservations", { studentId, name });
-    }
-
-    async function loadSlots() {
       const container = document.getElementById("slots");
-      container.innerHTML = '<div class="empty">読み込み中です…</div>';
+
+      container.innerHTML = `
+        <div style="text-align:center;padding:18px;background:#f4f8ff;border-radius:12px;border:1px solid #dbe7ff;color:#2d5bbf;font-size:13px;font-weight:700;">
+          予約状況を確認しています
+          <div class="loading-bar"></div>
+        </div>`;
+
       try {
-        allSlots = await apiGet("getSlots");
-        container.innerHTML = `
-          <div style="text-align:center;padding:18px;background:#f4f8ff;border-radius:12px;border:1px solid #dbe7ff;color:#2d5bbf;font-size:13px;font-weight:700;">
-            予約状況を確認しています
-            <div class="loading-bar"></div>
-          </div>`;
-        await fetchReservationsIfReady();
+        const data = await apiGet("getSlotsAndReservations", { studentId, name });
+        allSlots = data.slots;
+        myReservations = data.reservations;
         showSlots(allSlots, myReservations);
       } catch (error) {
-        showError(error.message || error);
+        container.innerHTML = '<div class="empty">読込エラーが発生しました。段階を選び直してください。</div>';
+        showMessage("読込エラー: " + (error.message || error), true);
+      } finally {
+        isLoading = false;
       }
     }
 
@@ -455,15 +457,15 @@
       const selectedStage = document.getElementById("stage").value;
 
       if (!isUserReady()) {
-        container.innerHTML = '<div class="empty">先に教習生番号と氏名を入力してください。</div>';
-        return;
-      }
-      if (!data || data.length === 0) {
-        container.innerHTML = '<div class="empty">現在、予約可能な授業はありません。</div>';
+        container.innerHTML = '<div class="empty">教習生番号・氏名・段階を入力すると授業一覧が表示されます。</div>';
         return;
       }
       if (!selectedStage) {
         container.innerHTML = '<div class="empty">現在の段階を選択してください。</div>';
+        return;
+      }
+      if (!data || data.length === 0) {
+        container.innerHTML = '<div class="empty">現在、予約可能な授業はありません。</div>';
         return;
       }
 
@@ -502,12 +504,6 @@
       });
     }
 
-    function showError(error) {
-      const container = document.getElementById("slots");
-      container.innerHTML = '<div class="empty">読込エラーが発生しました。</div>';
-      showMessage("読込エラー: " + error, true);
-    }
-
     async function reserve(id, btn) {
       const studentId = document.getElementById("studentId").value.trim();
       const name = document.getElementById("name").value.trim();
@@ -529,8 +525,7 @@
         await apiPost({ action: "reserve", id, studentId, name, stage });
         btn.innerHTML = "予約完了";
         btn.style.background = "#27ae60";
-        await fetchReservationsIfReady();
-        showSlots(allSlots, myReservations);
+        await loadSlotsAndReservations();
       } catch (error) {
         btn.disabled = false;
         btn.innerHTML = "予約する";
@@ -558,9 +553,8 @@
 
       try {
         await apiPost({ action: "cancel", id, studentId, name });
-        myReservations = myReservations.filter(r => r.id !== id);
-        showSlots(allSlots, myReservations);
         showMessage("予約を取り消しました。", false);
+        await loadSlotsAndReservations();
       } catch (error) {
         btn.disabled = false;
         btn.innerHTML = originalText;
@@ -570,35 +564,21 @@
 
     window.onload = function() {
       updateStageAvailability();
-      loadSlots();
 
       document.getElementById("studentId").addEventListener("input", function() {
         updateStageAvailability();
-        showSlots(allSlots, myReservations);
       });
 
       document.getElementById("name").addEventListener("input", function() {
         updateStageAvailability();
-        showSlots(allSlots, myReservations);
       });
 
       document.getElementById("stage").addEventListener("change", async function() {
-        const container = document.getElementById("slots");
         if (!isUserReady()) {
-          showSlots(allSlots, myReservations);
+          updateStageAvailability();
           return;
         }
-        container.innerHTML = `
-          <div style="text-align:center;padding:18px;background:#f4f8ff;border-radius:12px;border:1px solid #dbe7ff;color:#2d5bbf;font-size:13px;font-weight:700;">
-            予約状況を確認しています
-            <div class="loading-bar"></div>
-          </div>`;
-        try {
-          await fetchReservationsIfReady();
-        } catch (error) {
-          myReservations = [];
-        }
-        showSlots(allSlots, myReservations);
+        await loadSlotsAndReservations();
       });
     };
   </script>
