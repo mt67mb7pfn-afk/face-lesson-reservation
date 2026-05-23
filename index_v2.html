@@ -51,6 +51,17 @@
       font-size: 12px;
     }
 
+    .notice-box {
+      background: #fff8e1;
+      border-left: 4px solid #f5a623;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #5a3e00;
+    }
+
     .sticky-card {
       position: sticky;
       top: 0;
@@ -308,6 +319,13 @@
       </a>
     </div>
 
+    <div class="notice-box">
+      ⚠️ <strong>受講当日のご案内</strong><br>
+      授業開始 <strong>10分前までに来校し、窓口で原簿をお受け取りください</strong>。<br>
+      原簿の取り出しが確認できない場合、予約があっても受講できない場合があります。<br>
+      <span style="color:#7a6000;">※前の時間に教習・学科を受けている方はそのままお待ちください。</span>
+    </div>
+
     <div class="card sticky-card">
       <div class="input-row">
         <input id="studentId" maxlength="5" inputmode="numeric" placeholder="教習生番号（半角数字5桁）">
@@ -517,6 +535,8 @@
         showMessage("教習生番号は半角数字5桁（例：01234）で入力してください", true);
         return;
       }
+
+      if (!confirm("予約前にご確認ください。\n\n授業開始10分前までに来校し、\n窓口で原簿をお受け取りください。\n\n原簿の取り出しが確認できない場合、\n受講できない場合があります。\n\n予約しますか？")) return;
 
       btn.disabled = true;
       btn.innerHTML = '送信中<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>';
