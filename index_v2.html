@@ -5,75 +5,387 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    html, body { margin: 0; padding: 0; width: 100%; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
-    *, *::before, *::after { box-sizing: border-box; }
-    body { font-family: sans-serif; background: #f7f7f7; color: #222; }
-    .card { background: #ffffff; border-radius: 16px; padding: 10px; margin-bottom: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.07); }
-    .page { width: 100%; max-width: 640px; margin: 0 auto; padding: 8px; }
-    .lead-box { background: #ffffff; border-left: 4px solid #2d5bbf; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); line-height: 1.5; font-size: 12px; }
-    .notice-box { background: #fff8e1; border-left: 4px solid #f5a623; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: 12px; line-height: 1.7; color: #5a3e00; }
-    .sticky-card { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,0.96); backdrop-filter: blur(6px); border-bottom: 1px solid #e8e8e8; }
-    .input-row { display: grid; grid-template-columns: 1fr; gap: 6px; margin-bottom: 6px; }
-    .input-row input { width: 100%; height: 44px; padding: 6px 12px; margin: 0; border: 1px solid #d9dce3; border-radius: 10px; font-size: 16px; background: #fff; }
-    .stage-label { font-size: 12px; color: #2d5bbf; margin-bottom: 5px; font-weight: 700; }
-    .stage-select { width: 100%; height: 44px; border: 1.5px solid #2d5bbf; border-radius: 10px; font-size: 17px; font-weight: 700; background: #f4f8ff; padding: 0 12px; }
-    .stage-select:disabled { background: #f0f0f0; color: #999; border-color: #ccc; }
-    input::placeholder { font-size: 10px; color: #999; }
-    .note { font-size: 11px; color: #666; line-height: 1.5; }
-    h3 { margin: 0 0 8px 0; font-size: 13px; }
-    .slot { border: 1px solid #e4e8ef; padding: 12px; margin: 8px 0; border-radius: 14px; background: #ffffff; font-size: 12px; line-height: 1.5; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .slot-title { font-size: 15px; font-weight: 700; line-height: 1.4; margin-bottom: 5px; color: #24324a; }
-    button { display: block; width: 100%; padding: 12px; background: linear-gradient(135deg, #2d5bbf, #4a7bdc); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 700; box-shadow: 0 4px 10px rgba(45,91,191,0.16); }
-    button:disabled { cursor: default; opacity: 0.95; }
-    .subtle-button { background: #eef3fb; color: #2f3a4c; border: 1px solid #d8e1f2; box-shadow: none; }
-    .empty { color: #666; padding: 4px 0; font-size: 10px; line-height: 1.3; }
-    .deadline { font-size: 10px; color: #666; }
-    .closed { color: #cc0000; font-weight: bold; font-size: 12px; }
-    .loading-dots { display: inline-flex; gap: 2px; margin-left: 4px; }
-    .loading-dots span { opacity: 0.3; font-size: 16px; animation: dotBlink 1s infinite; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      -webkit-text-size-adjust: 100%;
+      overflow-x: hidden;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+      background: #f7f7f7;
+      color: #222;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+    }
+
+    .page {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 8px;
+    }
+
+    .lead-box {
+      background: #ffffff;
+      border-left: 4px solid #2d5bbf;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      line-height: 1.5;
+      font-size: 12px;
+    }
+
+    .sticky-card {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .input-row input {
+      width: 100%;
+      height: 44px;
+      padding: 6px 12px;
+      margin: 0;
+      border: 1px solid #d9dce3;
+      border-radius: 10px;
+      font-size: 16px;
+      background: #fff;
+    }
+
+    .stage-label {
+      font-size: 12px;
+      color: #2d5bbf;
+      margin-bottom: 5px;
+      font-weight: 700;
+    }
+
+    .stage-select {
+      width: 100%;
+      height: 44px;
+      border: 1.5px solid #2d5bbf;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      background: #f4f8ff;
+      padding: 0 12px;
+    }
+
+    .stage-select:disabled {
+      background: #f0f0f0;
+      color: #999;
+      border-color: #ccc;
+    }
+
+    input::placeholder {
+      font-size: 10px;
+      color: #999;
+    }
+
+    .note {
+      font-size: 11px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    h3 {
+      margin: 0 0 8px 0;
+      font-size: 13px;
+    }
+
+    .slot {
+      border: 1px solid #e4e8ef;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 14px;
+      background: #ffffff;
+      font-size: 12px;
+      line-height: 1.5;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .slot-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 5px;
+      color: #24324a;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #2d5bbf, #4a7bdc);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 4px 10px rgba(45, 91, 191, 0.16);
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: 0.95;
+    }
+
+    .subtle-button {
+      background: #eef3fb;
+      color: #2f3a4c;
+      border: 1px solid #d8e1f2;
+      box-shadow: none;
+    }
+
+    .empty {
+      color: #666;
+      padding: 4px 0;
+      font-size: 10px;
+      line-height: 1.3;
+    }
+
+    .deadline {
+      font-size: 10px;
+      color: #666;
+    }
+
+    .closed {
+      color: #cc0000;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .loading-dots {
+      display: inline-flex;
+      gap: 2px;
+      margin-left: 4px;
+    }
+
+    .loading-dots span {
+      opacity: 0.3;
+      font-size: 16px;
+      animation: dotBlink 1s infinite;
+    }
     .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
     .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes dotBlink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
-    .loading-bar { width: 60px; height: 4px; margin: 8px auto 0; background: #dbe7ff; border-radius: 2px; overflow: hidden; }
-    .loading-bar::after { content: ""; display: block; width: 40%; height: 100%; background: #2d5bbf; animation: slide 1.2s infinite; }
-    @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
-    .info-toggle { margin-top: 4px; border-top: 1px solid #eef1f5; padding-top: 8px; }
-    .info-toggle summary { font-size: 12px; color: #2d5bbf; cursor: pointer; list-style: none; font-weight: 700; }
+
+    @keyframes dotBlink {
+      0%, 80%, 100% { opacity: 0.2; }
+      40% { opacity: 1; }
+    }
+
+    .loading-bar {
+      width: 60px;
+      height: 4px;
+      margin: 8px auto 0;
+      background: #dbe7ff;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .loading-bar::after {
+      content: "";
+      display: block;
+      width: 40%;
+      height: 100%;
+      background: #2d5bbf;
+      animation: slide 1.2s infinite;
+    }
+
+    @keyframes slide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(250%); }
+    }
+
+    .info-toggle {
+      margin-top: 4px;
+      border-top: 1px solid #eef1f5;
+      padding-top: 8px;
+    }
+
+    .info-toggle summary {
+      font-size: 12px;
+      color: #2d5bbf;
+      cursor: pointer;
+      list-style: none;
+      font-weight: 700;
+    }
+
     .info-toggle summary::-webkit-details-marker { display: none; }
     .info-toggle summary::before { content: "▶ "; }
     .info-toggle[open] summary::before { content: "▼ "; }
-    @media (max-width: 380px) { .hero-title { font-size: 17px; } .hero-sub { font-size: 11px; } .slot-title { font-size: 14px; } button { font-size: 13px; padding: 11px 10px; } }
-    .hero { background: linear-gradient(135deg, #2d5bbf, #4a7bdc); color: #fff; border-radius: 18px; padding: 18px 16px; margin-bottom: 12px; box-shadow: 0 8px 20px rgba(45,91,191,0.18); position: relative; overflow: hidden; }
-    .hero::after { content: ""; position: absolute; right: -30px; top: -20px; width: 140px; height: 140px; background: rgba(255,255,255,0.08); border-radius: 50%; }
-    .hero-title { position: relative; font-size: 18px; font-weight: 700; margin-bottom: 6px; z-index: 1; }
-    .hero-sub { position: relative; font-size: 12px; line-height: 1.6; opacity: 0.96; z-index: 1; }
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; }
-    .modal-overlay.active { display: flex; }
-    .modal-box { background: #fff; border-radius: 16px; padding: 20px 18px; max-width: 320px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
-    .modal-title { font-size: 14px; font-weight: 700; color: #1a3a6b; margin-bottom: 10px; }
-    .modal-body { font-size: 12px; line-height: 1.7; color: #333; margin-bottom: 16px; }
-    .modal-buttons { display: flex; gap: 8px; }
-    .modal-cancel { flex: 1; padding: 10px; background: #eef3fb; color: #2f3a4c; border: 1px solid #d8e1f2; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
-    .modal-confirm { flex: 2; padding: 10px; background: linear-gradient(135deg, #2d5bbf, #4a7bdc); color: #fff; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+    @media (max-width: 380px) {
+      .hero-title { font-size: 17px; }
+      .hero-sub { font-size: 11px; }
+      .slot-title { font-size: 14px; }
+      button { font-size: 13px; padding: 11px 10px; }
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #2d5bbf, #4a7bdc);
+      color: #fff;
+      border-radius: 18px;
+      padding: 18px 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 20px rgba(45, 91, 191, 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -30px;
+      top: -20px;
+      width: 140px;
+      height: 140px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+
+    .hero-title {
+      position: relative;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      z-index: 1;
+    }
+
+    .hero-sub {
+      position: relative;
+      font-size: 12px;
+      line-height: 1.6;
+      opacity: 0.96;
+      z-index: 1;
+    }
+
+    .notice-box {
+      background: #fff8e1;
+      border-left: 4px solid #f5a623;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #5a3e00;
+    }
+
+    /* 確認モーダル */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px 18px;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    .modal-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a3a6b;
+      margin-bottom: 10px;
+    }
+    .modal-body {
+      font-size: 12px;
+      line-height: 1.7;
+      color: #333;
+      margin-bottom: 16px;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .modal-cancel {
+      flex: 1;
+      padding: 10px;
+      background: #eef3fb;
+      color: #2f3a4c;
+      border: 1px solid #d8e1f2;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .modal-confirm {
+      flex: 2;
+      padding: 10px;
+      background: linear-gradient(135deg, #2d5bbf, #4a7bdc);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
   </style>
 </head>
+
 <body>
   <div class="page">
+
     <div class="hero">
       <div class="hero-title">対面学科予約</div>
-      <div class="hero-sub">対面授業の実施予定を確認し、予約を行えます。<br>教習生番号・氏名・現在の段階を入力してご利用ください。</div>
+      <div class="hero-sub">
+        対面授業の実施予定を確認し、予約を行えます。<br>
+        教習生番号・氏名・現在の段階を入力してご利用ください。
+      </div>
     </div>
+
     <div class="lead-box">
       学科教習はオンラインでの受講をおすすめしています。<br>
       対面での受講を希望する方は、以下の実施予定をご確認の上ご予約ください。<br><br>
-      <a href="https://aoba-ds.jp/student.html" target="_blank" rel="noopener noreferrer" style="display:block; font-size:11px; color:#2d5bbf; text-decoration:none;">▶ 1ヶ月分の学科時間割はこちら</a>
+      <a href="https://aoba-ds.jp/student" target="_blank" rel="noopener noreferrer"
+         style="display:block; font-size:11px; color:#2d5bbf; text-decoration:none;">
+        ▶ 1ヶ月分の学科時間割はこちら
+      </a>
     </div>
+
     <div class="notice-box">
       ⚠️ <strong>受講当日のご案内</strong><br>
       授業開始 <strong>10分前までに来校し、窓口で原簿をお受け取りください</strong>。<br>
       原簿の取り出しが確認できない場合、予約があっても受講できない場合があります。<br>
       <span style="color:#7a6000;">※前の時間に教習・学科を受けている方はそのままお待ちください。</span>
     </div>
+
     <div class="card sticky-card">
       <div class="input-row">
         <input id="studentId" maxlength="5" inputmode="numeric" placeholder="教習生番号（半角数字5桁）">
@@ -88,6 +400,7 @@
         </select>
       </div>
     </div>
+
     <div class="card">
       <details class="info-toggle">
         <summary>利用上の注意を見る</summary>
@@ -100,9 +413,25 @@
         </div>
       </details>
     </div>
+
     <div class="card">
       <h3>予約可能な授業（3週間先まで）</h3>
       <div id="slots" class="empty">教習生番号・氏名・段階を入力すると授業一覧が表示されます。</div>
+    </div>
+
+  </div>
+
+  <!-- 取り消し確認モーダル -->
+  <div class="modal-overlay" id="cancelModal">
+    <div class="modal-box">
+      <div class="modal-title">🗑️ 予約を取り消しますか？</div>
+      <div class="modal-body">
+        この操作は取り消せません。<br>予約を取り消してよろしいですか？
+      </div>
+      <div class="modal-buttons">
+        <button class="modal-cancel" onclick="closeCancelModal()">戻る</button>
+        <button class="modal-confirm" id="cancelConfirmBtn" style="background: linear-gradient(135deg,#c0392b,#e74c3c);">取り消す</button>
+      </div>
     </div>
   </div>
 
@@ -123,16 +452,23 @@
 
   <script>
     const API_BASE = "https://script.google.com/macros/s/AKfycbwro1xYcI9tni5VI9rqkV0vZwKOiVGfbFhyZkSw3-Xj0ZxclXJdFY3RnmTsqdfehYaH/exec";
-    let allSlots = [], myReservations = [], isLoading = false;
-    let _pendingReserveId = null, _pendingReserveBtn = null;
+
+    let allSlots = [];
+    let myReservations = [];
+    let isLoading = false;
 
     function showMessage(message, isError) {
       let box = document.getElementById("messageBox");
       if (!box) {
         box = document.createElement("div");
         box.id = "messageBox";
-        box.style.cssText = "margin-bottom:8px;padding:8px 10px;border-radius:6px;font-size:11px;line-height:1.4;";
-        document.querySelector(".page").insertBefore(box, document.querySelector(".page").children[1]);
+        box.style.marginBottom = "8px";
+        box.style.padding = "8px 10px";
+        box.style.borderRadius = "6px";
+        box.style.fontSize = "11px";
+        box.style.lineHeight = "1.4";
+        const target = document.querySelector(".page");
+        target.insertBefore(box, target.children[1]);
       }
       box.style.background = isError ? "#fdecec" : "#eef8ee";
       box.style.color = isError ? "#b30000" : "#1f6b1f";
@@ -140,26 +476,43 @@
       box.style.padding = "8px 10px";
       box.style.marginBottom = "8px";
       box.textContent = message;
-      setTimeout(() => { box.textContent = ""; box.style.cssText = ""; }, 3000);
+      setTimeout(function() {
+        if (box) {
+          box.textContent = "";
+          box.style.padding = "0";
+          box.style.border = "none";
+          box.style.marginBottom = "0";
+        }
+      }, 3000);
     }
 
     async function apiGet(action, params = {}) {
       const url = new URL(API_BASE);
       url.searchParams.set("action", action);
-      Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-      const result = await (await fetch(url.toString(), { method: "GET" })).json();
+      Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+      });
+      const response = await fetch(url.toString(), { method: "GET" });
+      const result = await response.json();
       if (!result.ok) throw new Error(result.error || "取得に失敗しました。");
       return result.data;
     }
 
     async function apiPost(payload) {
-      const result = await (await fetch(API_BASE, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) })).json();
+      const response = await fetch(API_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
       if (!result.ok) throw new Error(result.error || "処理に失敗しました。");
       return result.message;
     }
 
     function isUserReady() {
-      return /^\d{5}$/.test(document.getElementById("studentId").value.trim()) && document.getElementById("name").value.trim() !== "";
+      const studentId = document.getElementById("studentId").value.trim();
+      const name = document.getElementById("name").value.trim();
+      return /^\d{5}$/.test(studentId) && name !== "";
     }
 
     function updateStageAvailability() {
@@ -167,39 +520,70 @@
       const ready = isUserReady();
       stage.disabled = !ready;
       if (!ready) {
-        stage.value = ""; allSlots = []; myReservations = [];
-        document.getElementById("slots").innerHTML = '<div class="empty">教習生番号・氏名・段階を入力すると授業一覧が表示されます。</div>';
+        stage.value = "";
+        allSlots = [];
+        myReservations = [];
+        document.getElementById("slots").innerHTML =
+          '<div class="empty">教習生番号・氏名・段階を入力すると授業一覧が表示されます。</div>';
       }
     }
 
     async function loadSlotsAndReservations() {
       if (!isUserReady()) return;
+
       const stage = document.getElementById("stage").value;
-      if (!stage || isLoading) return;
+      if (!stage) return;
+
+      if (isLoading) return;
       isLoading = true;
+
       const studentId = document.getElementById("studentId").value.trim();
       const name = document.getElementById("name").value.trim();
       const container = document.getElementById("slots");
-      container.innerHTML = '<div style="text-align:center;padding:18px;background:#f4f8ff;border-radius:12px;border:1px solid #dbe7ff;color:#2d5bbf;font-size:13px;font-weight:700;">予約状況を確認しています<div class="loading-bar"></div></div>';
+
+      container.innerHTML = `
+        <div style="text-align:center;padding:18px;background:#f4f8ff;border-radius:12px;border:1px solid #dbe7ff;color:#2d5bbf;font-size:13px;font-weight:700;">
+          予約状況を確認しています
+          <div class="loading-bar"></div>
+        </div>`;
+
       try {
         const data = await apiGet("getSlotsAndReservations", { studentId, name });
-        allSlots = data.slots; myReservations = data.reservations;
+        allSlots = data.slots;
+        myReservations = data.reservations;
         showSlots(allSlots, myReservations);
       } catch (error) {
         container.innerHTML = '<div class="empty">読込エラーが発生しました。段階を選び直してください。</div>';
         showMessage("読込エラー: " + (error.message || error), true);
-      } finally { isLoading = false; }
+      } finally {
+        isLoading = false;
+      }
     }
 
     function showSlots(data, reservations) {
       const container = document.getElementById("slots");
       container.innerHTML = "";
       const selectedStage = document.getElementById("stage").value;
-      if (!isUserReady()) { container.innerHTML = '<div class="empty">教習生番号・氏名・段階を入力すると授業一覧が表示されます。</div>'; return; }
-      if (!selectedStage) { container.innerHTML = '<div class="empty">現在の段階を選択してください。</div>'; return; }
-      if (!data || data.length === 0) { container.innerHTML = '<div class="empty">現在、予約可能な授業はありません。</div>'; return; }
-      const filtered = data.filter(s => Number(s.stage) === Number(selectedStage));
-      if (filtered.length === 0) { container.innerHTML = '<div class="empty">現在、予約可能な授業はありません。</div>'; return; }
+
+      if (!isUserReady()) {
+        container.innerHTML = '<div class="empty">教習生番号・氏名・段階を入力すると授業一覧が表示されます。</div>';
+        return;
+      }
+      if (!selectedStage) {
+        container.innerHTML = '<div class="empty">現在の段階を選択してください。</div>';
+        return;
+      }
+      if (!data || data.length === 0) {
+        container.innerHTML = '<div class="empty">現在、予約可能な授業はありません。</div>';
+        return;
+      }
+
+      const filtered = data.filter(slot => Number(slot.stage) === Number(selectedStage));
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty">現在、予約可能な授業はありません。</div>';
+        return;
+      }
+
       const now = new Date();
       filtered.forEach(function(slot) {
         const div = document.createElement("div");
@@ -207,48 +591,85 @@
         const deadline = new Date(slot.deadline);
         const isReserved = reservations.some(r => r.id === slot.id);
         let buttonHtml = "";
+
         if (isReserved) {
-          buttonHtml = '<button style="background:#27ae60;" disabled>✓ 予約済み</button><button class="subtle-button" style="margin-top:8px;" onclick="cancelReservation(\'' + slot.id + '\', this)">この予約を取り消す</button>';
+          buttonHtml =
+            '<button style="background:#27ae60;" disabled>✓ 予約済み</button>' +
+            '<button class="subtle-button" style="margin-top:8px;" onclick="cancelReservation(\'' + slot.id + '\', this)">この予約を取り消す</button>';
         } else if (now > deadline) {
           buttonHtml = '<span class="closed">受付終了</span>';
         } else {
           buttonHtml = '<button onclick="reserve(\'' + slot.id + '\', this)">予約する</button>';
         }
-        div.innerHTML = '<div class="slot-title">' + slot.date + '（' + slot.week + '） ' + slot.period + '限</div><div>' + slot.subject + '</div><div>' + slot.startTime + '～' + slot.endTime + '</div><div class="deadline">締切: ' + slot.deadline + '</div><div style="margin-top:8px;">' + buttonHtml + '</div>';
+
+        div.innerHTML =
+          '<div class="slot-title">' + slot.date + '（' + slot.week + '） ' + slot.period + '限</div>' +
+          '<div>' + slot.subject + '</div>' +
+          '<div>' + slot.startTime + '～' + slot.endTime + '</div>' +
+          '<div class="deadline">締切: ' + slot.deadline + '</div>' +
+          '<div style="margin-top:8px;">' + buttonHtml + '</div>';
+
         container.appendChild(div);
       });
-    }
-
-    function closeModal() {
-      document.getElementById("reserveModal").classList.remove("active");
-      _pendingReserveId = null; _pendingReserveBtn = null;
     }
 
     async function reserve(id, btn) {
       const studentId = document.getElementById("studentId").value.trim();
       const name = document.getElementById("name").value.trim();
       const stage = document.getElementById("stage").value;
-      if (!studentId || !name || !stage) { showMessage("教習生番号・氏名・現在の段階を入力してください", true); return; }
-      if (!/^\d{5}$/.test(studentId)) { showMessage("教習生番号は半角数字5桁（例：01234）で入力してください", true); return; }
-      _pendingReserveId = id; _pendingReserveBtn = btn;
+
+      if (!studentId || !name || !stage) {
+        showMessage("教習生番号・氏名・現在の段階を入力してください", true);
+        return;
+      }
+      if (!/^\d{5}$/.test(studentId)) {
+        showMessage("教習生番号は半角数字5桁（例：01234）で入力してください", true);
+        return;
+      }
+
+      _pendingReserveId = id;
+      _pendingReserveBtn = btn;
       document.getElementById("reserveModal").classList.add("active");
       document.getElementById("modalConfirmBtn").onclick = () => confirmReserve();
     }
 
+    let _pendingReserveId = null;
+    let _pendingReserveBtn = null;
+    let _pendingCancelId = null;
+    let _pendingCancelBtn = null;
+
+    function closeCancelModal() {
+      document.getElementById("cancelModal").classList.remove("active");
+      _pendingCancelId = null;
+      _pendingCancelBtn = null;
+    }
+
+    function closeModal() {
+      document.getElementById("reserveModal").classList.remove("active");
+      _pendingReserveId = null;
+      _pendingReserveBtn = null;
+    }
+
     async function confirmReserve() {
-      const id = _pendingReserveId, btn = _pendingReserveBtn;
+      const id  = _pendingReserveId;
+      const btn = _pendingReserveBtn;
       closeModal();
+
       const studentId = document.getElementById("studentId").value.trim();
       const name = document.getElementById("name").value.trim();
       const stage = document.getElementById("stage").value;
+
       btn.disabled = true;
       btn.innerHTML = '送信中<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>';
+
       try {
         await apiPost({ action: "reserve", id, studentId, name, stage });
-        btn.innerHTML = "予約完了"; btn.style.background = "#27ae60";
+        btn.innerHTML = "予約完了";
+        btn.style.background = "#27ae60";
         await loadSlotsAndReservations();
       } catch (error) {
-        btn.disabled = false; btn.innerHTML = "予約する";
+        btn.disabled = false;
+        btn.innerHTML = "予約する";
         showMessage("予約できませんでした: " + error.message, true);
       }
     }
@@ -256,28 +677,60 @@
     async function cancelReservation(id, btn) {
       const studentId = document.getElementById("studentId").value.trim();
       const name = document.getElementById("name").value.trim();
-      if (!/^\d{5}$/.test(studentId)) { showMessage("教習生番号は半角数字5桁で入力してください", true); return; }
-      if (!name.trim()) { showMessage("氏名を入力してください", true); return; }
-      if (!confirm("この予約を取り消しますか？")) return;
+
+      if (!/^\d{5}$/.test(studentId)) {
+        showMessage("教習生番号は半角数字5桁で入力してください", true);
+        return;
+      }
+      if (!name.trim()) {
+        showMessage("氏名を入力してください", true);
+        return;
+      }
+      _pendingCancelId = id;
+      _pendingCancelBtn = btn;
+      document.getElementById("cancelModal").classList.add("active");
+      document.getElementById("cancelConfirmBtn").onclick = () => confirmCancel();
+    }
+
+    async function confirmCancel() {
+      const id  = _pendingCancelId;
+      const btn = _pendingCancelBtn;
+      closeCancelModal();
+
+      const studentId = document.getElementById("studentId").value.trim();
+      const name = document.getElementById("name").value.trim();
+
       const originalText = btn.innerHTML;
       btn.disabled = true;
       btn.innerHTML = '取消中<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>';
+
       try {
         await apiPost({ action: "cancel", id, studentId, name });
         showMessage("予約を取り消しました。", false);
         await loadSlotsAndReservations();
       } catch (error) {
-        btn.disabled = false; btn.innerHTML = originalText;
+        btn.disabled = false;
+        btn.innerHTML = originalText;
         showMessage("取消できませんでした: " + error.message, true);
       }
     }
 
     window.onload = function() {
       updateStageAvailability();
-      document.getElementById("studentId").addEventListener("input", updateStageAvailability);
-      document.getElementById("name").addEventListener("input", updateStageAvailability);
+
+      document.getElementById("studentId").addEventListener("input", function() {
+        updateStageAvailability();
+      });
+
+      document.getElementById("name").addEventListener("input", function() {
+        updateStageAvailability();
+      });
+
       document.getElementById("stage").addEventListener("change", async function() {
-        if (!isUserReady()) { updateStageAvailability(); return; }
+        if (!isUserReady()) {
+          updateStageAvailability();
+          return;
+        }
         await loadSlotsAndReservations();
       });
     };
